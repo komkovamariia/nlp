@@ -44,3 +44,12 @@ def evaluate_retrieval(retrieved_ids, relevant_ids, k=5):
     if not relevant:
         return None
     return len(set(retrieved_ids[:k]) & relevant) / len(relevant)
+
+
+def reciprocal_rank_fusion(rankings, k=60):
+    """Fuse ranked identifier lists without requiring comparable score scales."""
+    scores = {}
+    for ranking in rankings:
+        for rank, item in enumerate(ranking, 1):
+            scores[item] = scores.get(item, 0.0) + 1.0 / (k + rank)
+    return sorted(scores, key=lambda item: (-scores[item], str(item)))

@@ -4,9 +4,15 @@ import pytest
 from nlp_portfolio.ner import align_word_labels, first_json_object, text_entities_to_bio
 from nlp_portfolio.rag import build_sparse_index, retrieve, option_id, format_mcq
 from nlp_portfolio.embeddings import cosine, align_orthogonal, retrofit
-from nlp_portfolio.attention import scaled_dot_product_attention, causal_mask
-from nlp_portfolio.retrieval_eval import reciprocal_rank, ndcg_at_k
+from nlp_portfolio.attention import (scaled_dot_product_attention, causal_mask,
+                                     split_heads, merge_heads, rotary_embedding)
+from nlp_portfolio.retrieval_eval import (reciprocal_rank, ndcg_at_k, recall_at_k,
+                                          average_precision, evaluate_run)
 from nlp_portfolio.classification import fit_text_classifier
+from nlp_portfolio.rag import reciprocal_rank_fusion
+from nlp_portfolio.evaluation import expected_calibration_error, bootstrap_interval
+from nlp_portfolio.lora import lora_parameter_count, lora_linear, model_memory_gib
+from nlp_portfolio.preference import dpo_loss
 
 
 def test_bio_subwords():
@@ -44,11 +50,30 @@ def test_attention():
     _, w = scaled_dot_product_attention(matrix, matrix, matrix, causal_mask(3))
     assert np.allclose(w.sum(axis=1), 1)
     assert np.allclose(np.triu(w, 1), 0)
+    x = np.arange(24).reshape(3, 8)
+    assert np.array_equal(merge_heads(split_heads(x, 2)), x)
+    assert rotary_embedding(np.ones((3, 4))).shape == (3, 4)
 
 
 def test_metrics():
     assert reciprocal_rank(["a", "b", "c"], {"b"}) == 0.5
     assert np.isclose(ndcg_at_k(["a", "b"], {"a": 3, "b": 1}, 2), 1)
+    assert recall_at_k(["a", "b"], {"b", "c"}, 2) == 0.5
+    assert average_precision(["x", "b", "c"], {"b", "c"}) == pytest.approx((0.5 + 2/3) / 2)
+    report = evaluate_run({"q": ["a", "b"]}, {"q": {"b"}}, k=2)
+    assert report["rr"] == 0.5
+
+
+def test_advanced_helpers():
+    assert reciprocal_rank_fusion([["a", "b"], ["b", "c"]])[0] in {"a", "b"}
+    assert expected_calibration_error([0, 1], [0.1, 0.9], bins=2) == pytest.approx(0.1)
+    low, high = bootstrap_interval([1, 2, 3], samples=100, seed=1)
+    assert low <= 2 <= high
+    assert lora_parameter_count(8, 4, 2) == 24
+    x, w = np.ones((2, 3)), np.ones((4, 3))
+    assert lora_linear(x, w, np.ones((3, 2)), np.ones((2, 4))).shape == (2, 4)
+    assert model_memory_gib(1024**3, 8) == pytest.approx(1.0)
+    assert dpo_loss([2.0], [0.0], [1.0], [0.0])[0] > 0
 
 
 def test_no_data_leakage_classification():
