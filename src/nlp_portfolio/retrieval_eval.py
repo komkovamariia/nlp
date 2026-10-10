@@ -1,4 +1,5 @@
 """Ranked retrieval metrics."""
+
 import numpy as np
 
 
@@ -43,22 +44,26 @@ def evaluate_run(run, qrels, k=5):
     rows = []
     for query_id, relevant in qrels.items():
         ranking = run.get(query_id, [])
-        rows.append({
-            "query_id": query_id,
-            "precision": precision_at_k(ranking, relevant, k),
-            "recall": recall_at_k(ranking, relevant, k),
-            "rr": reciprocal_rank(ranking, relevant),
-            "ap": average_precision(ranking, relevant),
-        })
+        rows.append(
+            {
+                "query_id": query_id,
+                "precision": precision_at_k(ranking, relevant, k),
+                "recall": recall_at_k(ranking, relevant, k),
+                "rr": reciprocal_rank(ranking, relevant),
+                "ap": average_precision(ranking, relevant),
+            }
+        )
     if not rows:
         raise ValueError("qrels must not be empty")
-    return {name: float(np.mean([row[name] for row in rows]))
-            for name in ("precision", "recall", "rr", "ap")}
+    return {name: float(np.mean([row[name] for row in rows])) for name in ("precision", "recall", "rr", "ap")}
 
 
 def ndcg_at_k(ranked_ids, relevance, k):
     scores = [float(relevance.get(key, 0.0)) for key in ranked_ids[:k]]
     ideal = sorted([float(v) for v in relevance.values()], reverse=True)[:k]
-    discount = lambda vals: sum((2.0**v - 1) / np.log2(i + 2) for i, v in enumerate(vals))
+
+    def discount(values):
+        return sum((2.0**value - 1) / np.log2(index + 2) for index, value in enumerate(values))
+
     ideal_score = discount(ideal)
     return float(discount(scores) / ideal_score) if ideal_score else 0.0

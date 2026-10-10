@@ -1,4 +1,5 @@
 """TF-IDF retrieval for multiple-choice question answering."""
+
 import re
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -18,8 +19,10 @@ def build_sparse_index(rules):
 def retrieve(query, index, top_k=5):
     ids, texts, vectorizer, matrix = index
     scores = cosine_similarity(vectorizer.transform([query]), matrix)[0]
-    return [{"id": ids[i], "text": texts[i], "score": float(scores[i])}
-            for i in np.argsort(-scores)[:max(0, top_k)]]
+    return [
+        {"id": ids[i], "text": texts[i], "score": float(scores[i])}
+        for i in np.argsort(-scores)[: max(0, top_k)]
+    ]
 
 
 def option_id(text):
@@ -32,10 +35,12 @@ def option_id(text):
 def format_mcq(question, options, passages):
     options_text = "\n".join(f"{opt['id']}. {opt['text']}" for opt in options)
     context = "\n\n".join(f"[{item['id']}] {item['text']}" for item in passages)
-    return ("Answer the multiple-choice question using ONLY the rule passages. "
-            "If the evidence is insufficient, respond UNKNOWN. "
-            "Otherwise return exactly one letter A, B, C, D, or E.\n\n"
-            f"RULES:\n{context}\n\nQUESTION:\n{question}\n\nOPTIONS:\n{options_text}")
+    return (
+        "Answer the multiple-choice question using ONLY the rule passages. "
+        "If the evidence is insufficient, respond UNKNOWN. "
+        "Otherwise return exactly one letter A, B, C, D, or E.\n\n"
+        f"RULES:\n{context}\n\nQUESTION:\n{question}\n\nOPTIONS:\n{options_text}"
+    )
 
 
 def evaluate_retrieval(retrieved_ids, relevant_ids, k=5):

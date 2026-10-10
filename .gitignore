@@ -14,3 +14,6 @@ models_cache/
 outputs/
 wandb/
 .DS_Store
+
+data/
+results/*.pt

@@ -1,0 +1,19 @@
+{
+  "python": "3.12.14",
+  "engine": "inprocess",
+  "mode": "full",
+  "notebooks": [
+    {
+      "notebook": "14_seq2seq_translation.ipynb",
+      "seconds": 29.38,
+      "code_cells": 7,
+      "status": "passed"
+    },
+    {
+      "notebook": "15_encoder_decoder_transformer.ipynb",
+      "seconds": 21.14,
+      "code_cells": 7,
+      "status": "passed"
+    }
+  ]
+}

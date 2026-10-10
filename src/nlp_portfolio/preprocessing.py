@@ -1,4 +1,5 @@
 """Tokenization and Zipf frequency statistics."""
+
 from collections import Counter
 import re
 import numpy as np

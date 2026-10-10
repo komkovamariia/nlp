@@ -1,4 +1,5 @@
 """Scaled dot-product attention."""
+
 import numpy as np
 
 
@@ -56,7 +57,10 @@ def rotary_embedding(x, positions=None):
     frequencies = 1.0 / (10000.0 ** (np.arange(half) / half))
     angles = positions[:, None] * frequencies[None, :]
     first, second = x[:, :half], x[:, half:]
-    return np.concatenate([
-        first * np.cos(angles) - second * np.sin(angles),
-        first * np.sin(angles) + second * np.cos(angles),
-    ], axis=-1)
+    return np.concatenate(
+        [
+            first * np.cos(angles) - second * np.sin(angles),
+            first * np.sin(angles) + second * np.cos(angles),
+        ],
+        axis=-1,
+    )

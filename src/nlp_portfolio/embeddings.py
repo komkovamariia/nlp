@@ -1,4 +1,5 @@
 """Word-vector similarity, alignment and retrofitting."""
+
 import numpy as np
 
 
@@ -25,6 +26,8 @@ def retrofit(vectors, neighbors, iterations=10, anchor_weight=1.0):
         updated = {}
         for word, vector in original.items():
             local = [current[n] for n in neighbors.get(word, ()) if n in current and n != word]
-            updated[word] = (anchor_weight * vector + sum(local, np.zeros_like(vector))) / (anchor_weight + len(local))
+            updated[word] = (anchor_weight * vector + sum(local, np.zeros_like(vector))) / (
+                anchor_weight + len(local)
+            )
         current = updated
     return current

@@ -1,4 +1,5 @@
 """Preference-optimization objectives for compact demonstrations."""
+
 import numpy as np
 
 

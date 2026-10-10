@@ -1,13 +1,22 @@
-import json
 import numpy as np
 import pytest
 from nlp_portfolio.ner import align_word_labels, first_json_object, text_entities_to_bio
 from nlp_portfolio.rag import build_sparse_index, retrieve, option_id, format_mcq
 from nlp_portfolio.embeddings import cosine, align_orthogonal, retrofit
-from nlp_portfolio.attention import (scaled_dot_product_attention, causal_mask,
-                                     split_heads, merge_heads, rotary_embedding)
-from nlp_portfolio.retrieval_eval import (reciprocal_rank, ndcg_at_k, recall_at_k,
-                                          average_precision, evaluate_run)
+from nlp_portfolio.attention import (
+    scaled_dot_product_attention,
+    causal_mask,
+    split_heads,
+    merge_heads,
+    rotary_embedding,
+)
+from nlp_portfolio.retrieval_eval import (
+    reciprocal_rank,
+    ndcg_at_k,
+    recall_at_k,
+    average_precision,
+    evaluate_run,
+)
 from nlp_portfolio.classification import fit_text_classifier
 from nlp_portfolio.rag import reciprocal_rank_fusion
 from nlp_portfolio.evaluation import expected_calibration_error, bootstrap_interval
@@ -24,7 +33,13 @@ def test_bio_subwords():
 def test_chat_parsing_and_repetitions():
     output = '```json\n{"PERSON": [], "ORG": [], "LOC": ["New York"]}\n```\nText: example {"bad":true}'
     assert first_json_object(output)["LOC"] == ["New York"]
-    assert text_entities_to_bio(["New", "York", "and", "New", "York"], {"LOC": ["New York"]}) == ["B-LOCATION", "I-LOCATION", "O", "B-LOCATION", "I-LOCATION"]
+    assert text_entities_to_bio(["New", "York", "and", "New", "York"], {"LOC": ["New York"]}) == [
+        "B-LOCATION",
+        "I-LOCATION",
+        "O",
+        "B-LOCATION",
+        "I-LOCATION",
+    ]
 
 
 def test_retrieval():
@@ -33,7 +48,9 @@ def test_retrieval():
     assert option_id("The answer is C.") == "C"
     assert option_id("UNKNOWN") is None
     assert option_id("A or B") is None
-    assert "A." in format_mcq("Question?", [{"id":"A", "text":"yes"}], [{"id":"rule", "text":"some context", "score":0.9}])
+    assert "A." in format_mcq(
+        "Question?", [{"id": "A", "text": "yes"}], [{"id": "rule", "text": "some context", "score": 0.9}]
+    )
 
 
 def test_vector_methods():
@@ -59,7 +76,7 @@ def test_metrics():
     assert reciprocal_rank(["a", "b", "c"], {"b"}) == 0.5
     assert np.isclose(ndcg_at_k(["a", "b"], {"a": 3, "b": 1}, 2), 1)
     assert recall_at_k(["a", "b"], {"b", "c"}, 2) == 0.5
-    assert average_precision(["x", "b", "c"], {"b", "c"}) == pytest.approx((0.5 + 2/3) / 2)
+    assert average_precision(["x", "b", "c"], {"b", "c"}) == pytest.approx((0.5 + 2 / 3) / 2)
     report = evaluate_run({"q": ["a", "b"]}, {"q": {"b"}}, k=2)
     assert report["rr"] == 0.5
 
@@ -77,16 +94,19 @@ def test_advanced_helpers():
 
 
 def test_no_data_leakage_classification():
-    sentences = [f"wonderful beautiful movie {i}" if i%2 else f"awful terrible movie {i}" for i in range(30)]
-    labels = [i%2 for i in range(30)]
+    sentences = [
+        f"wonderful beautiful movie {i}" if i % 2 else f"awful terrible movie {i}" for i in range(30)
+    ]
+    labels = [i % 2 for i in range(30)]
     m, report, params = fit_text_classifier(sentences, labels)
-    assert 'accuracy' in report and 'classifier__C' in params
+    assert "accuracy" in report and "classifier__C" in params
 
 
 def test_preprocessing_zipf():
     from nlp_portfolio.preprocessing import simple_tokens, zipf_slope
+
     tokens = simple_tokens("Hello hello HELLO world world NLP! NLP")
-    assert tokens.count('hello') == 3
+    assert tokens.count("hello") == 3
     slope, _, ranks, freq = zipf_slope(tokens)
     assert len(ranks) == 3
     assert slope < 0

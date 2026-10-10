@@ -22,6 +22,8 @@ Each notebook states its evaluation contract and separates model selection from 
 | [Hybrid RAG and reranking](notebooks/11_hybrid_rag_and_reranking.ipynb) | Multi-channel retrieval, RRF, reranking and failure traces |
 | [Preference optimization and evaluation](notebooks/12_preference_optimization_and_llm_evaluation.ipynb) | DPO loss, judge position bias and uncertainty |
 | [Biomedical evidence mining](notebooks/13_biomedical_evidence_mining.ipynb) | Gene normalization, provenance and evidence retrieval |
+| [Recurrent translation](notebooks/14_seq2seq_translation.ipynb) | Packed GRU, additive attention, teacher forcing and greedy generation |
+| [Encoder-decoder Transformer](notebooks/15_encoder_decoder_transformer.ipynb) | Source padding, causal target masks and autoregressive translation |
 
 ## Setup
 
@@ -44,3 +46,9 @@ Unit tests check the shared algorithms. End-to-end GPU experiments must be rerun
 ## Sources
 
 The initial experiments were developed from NLP exercises at the University of Padova. The advanced sequence follows the HSE materials on Transformers, BERT and GPT, modern LLMs, PEFT, model compression, RAG and evaluation. Dataset, course and primary-method references are collected in [sources/references.md](sources/references.md). The notebooks are independent implementations; the original teaching files are not redistributed.
+
+## Translation projects
+
+The two translation notebooks reimplement ML4HD's sequence models in PyTorch. Their default English-Italian grammar corpus is synthetic and small. Recorded scores measure held-out sentence combinations; natural translation quality requires a real parallel corpus. Set `PARALLEL_TSV` to a two-column UTF-8 parallel file to use the same pipeline with your data.
+
+Run these notebooks with `python scripts/execute_translation.py`. Causal-mask and source-padding invariants are checked during execution and in `tests/test_translation.py`. Generated examples and execution metadata are saved in `results`; figures are saved in `figures`. The original NLP projects remain in place.

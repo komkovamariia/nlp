@@ -1,10 +1,12 @@
 """Causal language-model token surprisal."""
+
 import numpy as np
 
 
 def token_surprisals(text, tokenizer, model):
     """Negative log p(token_t | previous tokens); first token excluded without BOS."""
     import torch
+
     batch = tokenizer(text, return_tensors="pt").to(model.device)
     ids = batch["input_ids"]
     if ids.shape[1] < 2:

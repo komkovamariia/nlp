@@ -22,3 +22,9 @@
 - Hugging Face PEFT: https://huggingface.co/docs/peft/
 
 The course materials define the topic progression. Equations and implementations in this repository were written independently and are validated by local tests.
+
+## ML4HD translation models
+
+The uploaded Lab_seq2seq and Lab_transformers examples informed projects 14 and 15. GRU attention and encoder-decoder Transformer code were reimplemented in PyTorch. Original course weights are not used. The default grammar corpus is newly constructed for a controlled experiment; it is not the original course parallel corpus.
+
+The source and target vocabularies are fitted on training text only. Packed recurrent inputs, source attention masks and causal target masks are validated explicitly. Primary references: [Bahdanau attention](https://arxiv.org/abs/1409.0473), [Attention Is All You Need](https://arxiv.org/abs/1706.03762) and [PyTorch Transformer](https://docs.pytorch.org/docs/stable/generated/torch.nn.Transformer.html).

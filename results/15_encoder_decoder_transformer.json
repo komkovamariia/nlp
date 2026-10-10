@@ -1,0 +1,9 @@
+{
+  "autoregressive_exact_match": 1.0,
+  "teacher_forced_token_accuracy": 1.0,
+  "constant_baseline_exact_match": 0.0,
+  "best_validation_nll": 0.00014257272414397448,
+  "synthetic_corpus": true,
+  "training_pairs": 114,
+  "test_pairs": 39
+}
