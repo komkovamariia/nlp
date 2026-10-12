@@ -10,12 +10,14 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import nbformat
+from IPython.core.formatters import DisplayFormatter
 
 
 def execute_inprocess(notebook, root: Path):
     namespace = {"__name__": "__main__"}
     original_directory = Path.cwd()
     original_show = plt.show
+    formatter = DisplayFormatter()
     os.chdir(root)
     try:
         for number, cell in enumerate(notebook.cells, 1):
@@ -46,7 +48,14 @@ def execute_inprocess(notebook, root: Path):
                     )
                 plt.close("all")
 
+            def display(*objects):
+                flush_streams()
+                for value in objects:
+                    data, metadata = formatter.format(value)
+                    outputs.append(nbformat.v4.new_output("display_data", data=data, metadata=metadata))
+
             plt.show = show
+            namespace["display"] = display
             with redirect_stdout(stdout), redirect_stderr(stderr):
                 tree = ast.parse(cell.source)
                 filename = f"{root.name}:cell_{number}"
@@ -58,7 +67,8 @@ def execute_inprocess(notebook, root: Path):
                         flush_streams()
                         outputs.append(
                             nbformat.v4.new_output(
-                                "execute_result", execution_count=number, data={"text/plain": repr(value)}
+                                "execute_result", execution_count=number,
+                                data=formatter.format(value)[0]
                             )
                         )
                 else:
